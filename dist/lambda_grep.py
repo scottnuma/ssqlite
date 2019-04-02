@@ -53,7 +53,7 @@ def local_grep_single(file_path, phrase, local):
     return {'matches': matches, 'file_name': file_path}
 
 
-def lambda_grep_multiple(file_paths, phrase, lambda_concurrency, local:
+def lambda_grep_multiple(file_paths, phrase, lambda_concurrency, local):
     """Print all lines in all files that the phrase occurs in.
 
     Args:
@@ -80,12 +80,17 @@ def lambda_grep_multiple(file_paths, phrase, lambda_concurrency, local:
     return results
 
 
-def generate_file_names():
+def generate_file_names(local):
     """Return the namespace of searchable files."""
+    prefix = "/docs/file-"
+
+    if local:
+        prefix = "/efs" + prefix
+
     file_names = []
     for letter in string.ascii_lowercase:
         for digit in string.digits:
-            file_name = "/docs/file-" + letter + digit + ".txt"
+            file_name = prefix + letter + digit + ".txt"
             file_names.append(file_name)
     return file_names
 
@@ -99,7 +104,7 @@ def main():
     args = parser.parse_args()
 
     if args.num_files:
-        files = generate_file_names()[:args.num_files]
+        files = generate_file_names(args.local)[:args.num_files]
     else:
         files = ["/aeneid_test.txt",
                  "lambda_grep.py", "/aeneid_test2.txt"]
